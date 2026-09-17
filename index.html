@@ -3,58 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SINKIDXXX // PRO TERMINAL</title>
+    <title>SINKIDXXX // PRO DASHBOARD</title>
     <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #12141a; color: #a1a7b6; height: 100vh; overflow: hidden; font-size: 12px; }
+        body { background: #0a0b0e; color: #a1a7b6; height: 100vh; overflow: hidden; font-size: 12px; }
         
-        .top-nav { display: flex; justify-content: space-between; align-items: center; background: #1a1d26; border-bottom: 1px solid #282c3a; padding: 0 14px; height: 42px; }
-        .logo { font-weight: 800; color: #fff; font-size: 15px; letter-spacing: 1px; }
-        .nav-right { display: flex; gap: 10px; align-items: center; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; background: #12141a; border-bottom: 1px solid #1e222d; padding: 0 16px; height: 44px; }
+        .logo { font-weight: 800; color: #fff; font-size: 14px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        .logo-dot { width: 8px; height: 8px; background: #00e676; border-radius: 50%; box-shadow: 0 0 10px #00e676; }
+        .nav-right { display: flex; gap: 12px; align-items: center; }
         
-        .grid-container { display: grid; grid-template-columns: 260px 1fr 300px; height: calc(100vh - 42px); }
+        .grid-container { display: grid; grid-template-columns: 260px 1fr 320px; height: calc(100vh - 44px); }
         
-        /* Left Watchlist */
-        .sidebar-left { background: #161821; border-right: 1px solid #242836; overflow-y: auto; }
-        .section-title { padding: 10px 14px; font-weight: 700; color: #646b7c; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #1f222e; display: flex; justify-content: space-between; }
-        .watchlist-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #1c1f2b; cursor: pointer; transition: 0.1s; }
-        .watchlist-item:hover, .watchlist-item.active { background: #1d202c; }
-        .sym-name { font-weight: 700; color: #e1e4ea; font-size: 13px; }
-        .btn-delete-sym { background: rgba(255, 82, 82, 0.2); color: #ff5252; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 10px; display: none; }
+        /* Left Sidebar */
+        .sidebar-left { background: #12141a; border-right: 1px solid #1e222d; overflow-y: auto; }
+        .section-title { padding: 12px 14px; font-weight: 700; color: #5d6373; font-size: 10px; text-transform: uppercase; border-bottom: 1px solid #191c24; display: flex; justify-content: space-between; letter-spacing: 0.5px; }
+        .watchlist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #171922; cursor: pointer; transition: 0.15s; }
+        .watchlist-item:hover, .watchlist-item.active { background: #1a1d26; }
+        .sym-name { font-weight: 700; color: #e1e4ea; font-size: 12px; }
+        .btn-delete-sym { background: rgba(255, 82, 82, 0.15); color: #ff5252; border: 1px solid rgba(255,82,82,0.3); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; display: none; }
         .btn-delete-sym:hover { background: #ff5252; color: #fff; }
 
         /* Main Chart Area */
-        .main-chart-area { display: flex; flex-direction: column; background: #12141a; position: relative; height: 100%; }
+        .main-chart-area { display: flex; flex-direction: column; background: #0a0b0e; position: relative; height: 100%; }
         #tradingview_widget { width: 100%; height: 100%; }
 
         /* Right Panel */
-        .sidebar-right { background: #161821; border-left: 1px solid #242836; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .panel-box { background: #1c1f2b; border: 1px solid #262a3b; border-radius: 6px; padding: 12px; }
-        .panel-box h4 { color: #fff; font-size: 13px; margin-bottom: 8px; }
+        .sidebar-right { background: #12141a; border-left: 1px solid #1e222d; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+        .panel-box { background: #171922; border: 1px solid #222634; border-radius: 8px; padding: 14px; }
+        .panel-box h4 { color: #fff; font-size: 12px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         
-        .admin-box { border-color: #2962ff; background: rgba(41, 98, 255, 0.05); }
+        .admin-box { border-color: rgba(41, 98, 255, 0.4); background: rgba(41, 98, 255, 0.03); }
 
-        input, select, button { width: 100%; background: #242836; border: 1px solid #303548; color: #fff; padding: 8px; border-radius: 4px; margin-top: 4px; font-size: 12px; }
-        button.btn-action { background: #2962ff; border: none; font-weight: bold; cursor: pointer; }
+        input, select, button { width: 100%; background: #0e1015; border: 1px solid #222634; color: #fff; padding: 9px 12px; border-radius: 6px; margin-top: 6px; font-size: 11px; outline: none; transition: 0.2s; }
+        input:focus { border-color: #2962ff; }
+        button.btn-action { background: #2962ff; border: none; font-weight: 700; cursor: pointer; color: #fff; }
         button.btn-action:hover { background: #1e51e6; }
-        button.btn-danger { background: #ff5252; border: none; font-weight: bold; cursor: pointer; }
-        .user-badge { background: #222634; padding: 4px 8px; border-radius: 4px; color: #00e676; font-weight: bold; }
+        button.btn-danger { background: #ff5252; border: none; font-weight: 700; cursor: pointer; }
+        .user-badge { background: #1a1d26; padding: 4px 8px; border-radius: 6px; color: #00e676; font-weight: bold; border: 1px solid #222634; }
+        
+        .alarm-list-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #222634; font-size: 11px; }
+
+        /* MODAL */
+        #login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07080a; z-index: 99999; justify-content: center; align-items: center; }
+        .login-card { width: 400px; background: #111319; border: 1px solid #1e222d; border-radius: 20px; padding: 40px 32px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .login-logo-circle { width: 70px; height: 70px; border-radius: 50%; border: 1px dashed #3a3f50; display: flex; justify-content: center; align-items: center; margin: 0 auto 20px auto; color: #fff; font-weight: 800; font-size: 18px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); }
+        .login-subtitle { font-size: 10px; letter-spacing: 2px; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+        .login-title { font-size: 22px; color: #fff; font-weight: 700; margin-bottom: 6px; }
+        .login-desc { font-size: 12px; color: #6b7280; margin-bottom: 24px; }
+        
+        .input-group { position: relative; margin-bottom: 12px; }
+        .input-group input { background: #171a23; border: 1px solid #252a37; border-radius: 10px; padding: 12px 14px 12px 40px; font-size: 12px; color: #fff; }
+        .input-group input::placeholder { color: #4b5563; }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #4b5563; font-size: 14px; }
+        
+        .btn-login-submit { background: #ffffff; color: #000; font-weight: 700; border-radius: 10px; padding: 12px; margin-top: 10px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; }
+        .btn-login-submit:hover { background: #e5e7eb; }
+        
+        .login-footer-link { margin-top: 18px; font-size: 11px; color: #6b7280; }
+        .login-footer-link a { color: #9ca3af; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
-    <div class="logo">SINKIDXXX // TERMINAL PRO</div>
+    <div class="logo">
+        <div class="logo-dot"></div>
+        SINKIDXXX // TERMINAL PRO
+    </div>
     <div class="nav-right">
-        <select id="lang-select" onchange="manualLanguageSwitch()" style="width: auto; padding: 2px 6px;">
+        <select id="lang-select" onchange="manualLanguageSwitch()" style="width: auto; padding: 4px 8px; margin: 0;">
             <option value="tr">TR 🇹🇷</option>
             <option value="en">EN 🇬🇧</option>
         </select>
         <div id="auth-status-area">
-            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;" id="btn-login-modal">Giriş Yap</button>
+            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 12px; margin: 0;" id="btn-login-modal">Giriş Yap</button>
         </div>
     </div>
 </div>
@@ -63,7 +89,7 @@
     <div class="sidebar-left">
         <div class="section-title">
             <span id="txt-watchlist-title">İzleme Listem</span>
-            <span style="color:#2962ff;">LIVE CLOUD</span>
+            <span style="color:#00e676;">LIVE DB</span>
         </div>
         <div id="watchlist-container"></div>
     </div>
@@ -73,46 +99,77 @@
     </div>
 
     <div class="sidebar-right">
+        <!-- Admin Paneli -->
         <div class="panel-box admin-box" id="admin-panel" style="display: none;">
-            <h4 style="color: #2962ff;">⚡ Admin Kontrol Paneli</h4>
-            <p style="font-size:10px; color:#828a9e; margin-bottom:6px;" id="txt-admin-info">Tüm kullanıcılara canlı sembol ekleyin:</p>
+            <h4 style="color: #2962ff;">⚡ <span id="txt-admin-header">Admin Kontrol Paneli</span></h4>
+            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Tüm kullanıcılara canlı sembol ekleyin:</p>
             <input type="text" id="admin-new-symbol" placeholder="Örn: BINANCE:BTCUSDT veya BIST:THYAO">
             <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Listeye Ekle</button>
         </div>
 
+        <!-- Canlı Fiyat Alarmı -->
         <div class="panel-box">
-            <h4 id="txt-risk-title">Risk Yönetimi</h4>
-            <label style="font-size:11px;">Stop Loss:</label>
-            <input type="number" id="input-stop-loss" placeholder="Stop Loss">
-            <label style="font-size:11px; margin-top:6px; display:block;">Take Profit:</label>
-            <input type="number" id="input-take-profit" placeholder="Take Profit">
+            <h4>⏰ <span id="txt-alarm-header">Fiyat Alarmı</span></h4>
+            <input type="number" id="input-alarm-price" placeholder="Hedef Fiyat (USD)">
+            <button class="btn-action" onclick="addPriceAlarm()" style="margin-top:8px;" id="btn-set-alarm">Alarm Kur</button>
+            <div id="alarm-list-container" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- Pozisyon & Risk Hesaplayıcı -->
+        <div class="panel-box">
+            <h4>📐 <span id="txt-risk-header">Pozisyon & Risk Hesaplayıcı</span></h4>
+            <label style="font-size:10px; color:#6b7280;" id="lbl-balance">Bakiye (USD):</label>
+            <input type="number" id="calc-balance" value="1000">
+            
+            <label style="font-size:10px; color:#6b7280; margin-top:6px; display:block;" id="lbl-risk">Risk Oranı (%):</label>
+            <input type="number" id="calc-risk" value="1">
+
+            <label style="font-size:10px; color:#6b7280; margin-top:6px; display:block;" id="lbl-stop">Stop Loss Fiyatı:</label>
+            <input type="number" id="calc-stop" placeholder="Stop Fiyatı">
+
+            <button class="btn-action" onclick="calculatePositionSize()" style="margin-top:8px;" id="btn-calc">Hesapla</button>
+            
+            <div id="calc-result" style="margin-top:10px; font-size:11px; color:#00e676; font-weight:bold;"></div>
         </div>
     </div>
 </div>
 
-<!-- GİRİŞ MODALI -->
-<div id="login-modal" style="display:flex; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
-    <div class="panel-box" style="width: 320px; background: #161821; border: 1px solid #303548; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
-        <h4 id="txt-login-header" style="text-align:center; font-size:16px; margin-bottom:12px;">Sisteme Giriş Yap</h4>
-        <div style="font-size:11px; color:#828a9e; margin-bottom:12px; background:#111319; padding:8px; border-radius:4px; line-height:1.4;">
-            <div>Demo User: <strong style="color:#fff;">t.me/sinkidxxx</strong></div>
-            <div>Şifre: <strong style="color:#fff;">sinkidxxx</strong></div>
+<!-- LOGIN MODALI -->
+<div id="login-modal">
+    <div class="login-card">
+        <div class="login-logo-circle">S</div>
+        <div class="login-subtitle">SINKIDXXX</div>
+        <div class="login-title" id="txt-modal-title">Panelinize dönün</div>
+        <div class="login-desc" id="txt-modal-desc">Telegram kullanıcı adınız ve parolanızla giriş yapın.</div>
+        
+        <div class="input-group">
+            <span class="input-icon">👤</span>
+            <input type="text" id="login-user" placeholder="Telegram kullanıcı adınız">
         </div>
-        <input type="text" id="login-user" placeholder="Kullanıcı Adı">
-        <input type="password" id="login-pass" placeholder="Şifre">
-        <button class="btn-action" onclick="handleLogin()" style="margin-top:12px; padding:10px;" id="btn-submit-login">Giriş Yap</button>
-        <button onclick="closeLoginModal()" id="btn-close-modal" style="display:none; background:transparent; border:none; color:#828a9e; margin-top:8px; cursor:pointer;">Kapat</button>
+        
+        <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="login-pass" placeholder="Parola">
+        </div>
+        
+        <button class="btn-login-submit" onclick="handleLogin()">
+            <span id="txt-btn-login">Giriş yap</span> &rarr;
+        </button>
+        
+        <div class="login-footer-link">
+            🔒 <span id="txt-not-member">Üye değil misiniz? Sorun değil,</span> <a href="https://t.me/sinkidxxx" target="_blank" id="txt-click-here">katılım talebi için buraya tıklayın.</a>
+        </div>
     </div>
 </div>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    // --- FIREBASE KURULUMU ---
-    // ⚠️ AŞAĞIDAKİ databaseURL ALANINA KENDİ FIREBASE URL'İNİZİ YAPIŞTIRIN
+    // --- ÖZEL FIREBASE VERİTABANI BAĞLANTISI ---
     const firebaseConfig = {
-        databaseURL: "https://sinkidxxx-cbd86-default-rtdb.firebaseio.com"
+        databaseURL: "https://sinkidxxx-cbd86-default-rtdb.firebaseio.com/"
     };
     firebase.initializeApp(firebaseConfig);
+    
     const db = firebase.database();
     const watchlistRef = db.ref('global_watchlist');
 
@@ -121,26 +178,41 @@
     let currentUser = null; 
     let tvWidget = null;
     let watchListSymbols = [];
+    let activeAlarms = [];
+    let wsConnection = null;
 
-    // Firebase'den Canlı Liste Takibi (Sitedeki Herkese Anında Yansır)
+    const langStrings = {
+        tr: {
+            watchlist: "İzleme Listem", login: "Giriş Yap", logout: "Çıkış Yap",
+            adminHeader: "Admin Kontrol Paneli", adminInfo: "Tüm kullanıcılara canlı sembol ekleyin:", addCoin: "Listeye Ekle",
+            alarmHeader: "Fiyat Alarmı", setAlarm: "Alarm Kur",
+            riskHeader: "Pozisyon & Risk Hesaplayıcı", balance: "Bakiye (USD):", risk: "Risk Oranı (%):", stop: "Stop Loss Fiyatı:", calc: "Hesapla",
+            modalTitle: "Panelinize dönün", modalDesc: "Telegram kullanıcı adınız ve parolanızla giriş yapın.",
+            userPlace: "Telegram kullanıcı adınız", passPlace: "Parola", btnLogin: "Giriş yap",
+            notMember: "Üye değil misiniz? Sorun değil,", clickHere: "katılım talebi için buraya tıklayın."
+        },
+        en: {
+            watchlist: "Watchlist", login: "Log In", logout: "Log Out",
+            adminHeader: "Admin Control Panel", adminInfo: "Add symbol to global watchlist:", addCoin: "Add Symbol",
+            alarmHeader: "Price Alarm", setAlarm: "Set Alarm",
+            riskHeader: "Position & Risk Calculator", balance: "Balance (USD):", risk: "Risk Ratio (%):", stop: "Stop Loss Price:", calc: "Calculate",
+            modalTitle: "Return to your panel", modalDesc: "Log in with your Telegram username and password.",
+            userPlace: "Telegram username", passPlace: "Password", btnLogin: "Log in",
+            notMember: "Not a member? No problem,", clickHere: "click here to request access."
+        }
+    };
+
+    // Firebase Canlı Veri Takibi
     watchlistRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
             watchListSymbols = Object.values(data);
         } else {
-            // İlk açılış varsayılan liste
             watchListSymbols = ['BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'BINANCE:SOLUSDT', 'BIST:THYAO'];
             watchlistRef.set(watchListSymbols);
         }
         renderWatchlist();
     });
-
-    function detectLanguage() {
-        const userLang = navigator.language || navigator.userLanguage; 
-        currentLang = userLang.startsWith('tr') ? 'tr' : 'en';
-        document.getElementById('lang-select').value = currentLang;
-        applyLanguageStrings();
-    }
 
     function manualLanguageSwitch() {
         currentLang = document.getElementById('lang-select').value;
@@ -149,34 +221,34 @@
     }
 
     function applyLanguageStrings() {
-        const t = {
-            tr: { watchlist: "İzleme Listem", login: "Giriş Yap", adminInfo: "Tüm kullanıcılara canlı sembol ekleyin:", addCoin: "Listeye Ekle", riskTitle: "Risk Yönetimi", loginHeader: "Sisteme Giriş Yap", close: "Kapat" },
-            en: { watchlist: "Watchlist", login: "Log In", adminInfo: "Add symbol to global watchlist:", addCoin: "Add Symbol", riskTitle: "Risk Management", loginHeader: "System Login", close: "Close" }
-        }[currentLang];
-
+        const t = langStrings[currentLang];
         document.getElementById('txt-watchlist-title').innerText = t.watchlist;
-        if(!currentUser) {
-            document.getElementById('auth-status-area').innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;" id="btn-login-modal">${t.login}</button>`;
-        }
+        document.getElementById('txt-admin-header').innerText = t.adminHeader;
         document.getElementById('txt-admin-info').innerText = t.adminInfo;
         document.getElementById('btn-add-coin').innerText = t.addCoin;
-        document.getElementById('txt-risk-title').innerText = t.riskTitle;
-        document.getElementById('txt-login-header').innerText = t.loginHeader;
-        document.getElementById('btn-submit-login').innerText = t.login;
-        document.getElementById('btn-close-modal').innerText = t.close;
+        document.getElementById('txt-alarm-header').innerText = t.alarmHeader;
+        document.getElementById('btn-set-alarm').innerText = t.setAlarm;
+        document.getElementById('txt-risk-header').innerText = t.riskHeader;
+        document.getElementById('lbl-balance').innerText = t.balance;
+        document.getElementById('lbl-risk').innerText = t.risk;
+        document.getElementById('lbl-stop').innerText = t.stop;
+        document.getElementById('btn-calc').innerText = t.calc;
+        
+        document.getElementById('txt-modal-title').innerText = t.modalTitle;
+        document.getElementById('txt-modal-desc').innerText = t.modalDesc;
+        document.getElementById('login-user').placeholder = t.userPlace;
+        document.getElementById('login-pass').placeholder = t.passPlace;
+        document.getElementById('txt-btn-login').innerText = t.btnLogin;
+        document.getElementById('txt-not-member').innerText = t.notMember;
+        document.getElementById('txt-click-here').innerText = t.clickHere;
+
+        if(!currentUser) {
+            document.getElementById('auth-status-area').innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;">${t.login}</button>`;
+        }
     }
 
     function openLoginModal(isMandatory = false) { 
         document.getElementById('login-modal').style.display = 'flex';
-        document.getElementById('btn-close-modal').style.display = isMandatory ? 'none' : 'block';
-    }
-
-    function closeLoginModal() { 
-        if(!currentUser) {
-            alert(currentLang === 'tr' ? "Devam etmek için giriş yapmalısınız." : "You must login to continue.");
-            return;
-        }
-        document.getElementById('login-modal').style.display = 'none'; 
     }
 
     function handleLogin() {
@@ -210,35 +282,34 @@
 
     function updateAuthBar() {
         const area = document.getElementById('auth-status-area');
+        const t = langStrings[currentLang];
         if(currentUser) {
             const roleTag = currentUser.role === 'admin' ? '<span style="color:#2962ff;">[ADMIN]</span>' : '';
             area.innerHTML = `
                 <span class="user-badge">👤 ${currentUser.username} ${roleTag}</span>
-                <button class="btn-danger" onclick="handleLogout()" style="width:auto; padding: 4px 8px; margin-left:6px;">${currentLang === 'tr' ? 'Çıkış' : 'Logout'}</button>
+                <button class="btn-danger" onclick="handleLogout()" style="width:auto; padding: 4px 8px; margin-left:6px;">${t.logout}</button>
             `;
         } else {
-            area.innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;">${currentLang === 'tr' ? 'Giriş Yap' : 'Log In'}</button>`;
+            area.innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;">${t.login}</button>`;
         }
     }
 
-    // Admin Tarafından Buluta Symbol Ekleme
     function adminAddSymbol() {
         let sym = document.getElementById('admin-new-symbol').value.toUpperCase().trim();
         if(sym) {
             if(!sym.includes(':')) sym = 'BINANCE:' + sym;
             if(!watchListSymbols.includes(sym)) {
                 watchListSymbols.push(sym);
-                watchlistRef.set(watchListSymbols); // Firebase Veritabanını Günceller
+                watchlistRef.set(watchListSymbols);
                 document.getElementById('admin-new-symbol').value = '';
             }
         }
     }
 
-    // Admin Tarafından Buluttan Symbol Silme
     function removeSymbol(event, sym) {
         event.stopPropagation();
         watchListSymbols = watchListSymbols.filter(s => s !== sym);
-        watchlistRef.set(watchListSymbols); // Firebase Veritabanını Günceller
+        watchlistRef.set(watchListSymbols);
     }
 
     function renderWatchlist() {
@@ -253,9 +324,7 @@
             const isDeleteVisible = currentUser && currentUser.role === 'admin' ? 'inline-block' : 'none';
             
             item.innerHTML = `
-                <div>
-                    <div class="sym-name">${s}</div>
-                </div>
+                <div><div class="sym-name">${s}</div></div>
                 <button class="btn-delete-sym" style="display:${isDeleteVisible};" onclick="removeSymbol(event, '${s}')">Kaldır</button>
             `;
             container.appendChild(item);
@@ -264,7 +333,6 @@
 
     function loadTradingViewChart(symbol) {
         document.getElementById('tradingview_widget').innerHTML = '';
-        
         tvWidget = new TradingView.widget({
             "autosize": true,
             "symbol": symbol,
@@ -284,14 +352,80 @@
         currentSymbol = symbol;
         renderWatchlist();
         loadTradingViewChart(symbol);
+        connectBinanceTickerForAlarm(symbol);
     }
 
-    detectLanguage();
+    function playBeepSound() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+    }
+
+    function addPriceAlarm() {
+        const price = parseFloat(document.getElementById('input-alarm-price').value);
+        if(price) {
+            activeAlarms.push({ symbol: currentSymbol, price: price });
+            renderAlarms();
+            document.getElementById('input-alarm-price').value = '';
+            connectBinanceTickerForAlarm(currentSymbol);
+        }
+    }
+
+    function renderAlarms() {
+        const container = document.getElementById('alarm-list-container');
+        container.innerHTML = '';
+        activeAlarms.forEach((a, i) => {
+            container.innerHTML += `
+                <div class="alarm-list-item">
+                    <span>${a.symbol}: <strong>${a.price} USD</strong></span>
+                    <span style="color:#ff5252; cursor:pointer;" onclick="activeAlarms.splice(${i},1);renderAlarms();">✕</span>
+                </div>
+            `;
+        });
+    }
+
+    function connectBinanceTickerForAlarm(symbol) {
+        if(!symbol.includes('BINANCE:')) return;
+        const cleanSym = symbol.replace('BINANCE:', '').toLowerCase();
+        if(wsConnection) wsConnection.close();
+
+        wsConnection = new WebSocket(`wss://stream.binance.com:9443/ws/${cleanSym}@ticker`);
+        wsConnection.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            const currentPrice = parseFloat(data.c);
+
+            activeAlarms.forEach((alarm, index) => {
+                if(alarm.symbol === symbol && Math.abs(currentPrice - alarm.price) / alarm.price < 0.001) {
+                    playBeepSound();
+                    alert(`🚨 ALARM TETİKLENDİ! ${symbol} Hedef Fiyata Ulaştı: ${currentPrice}`);
+                    activeAlarms.splice(index, 1);
+                    renderAlarms();
+                }
+            });
+        };
+    }
+
+    function calculatePositionSize() {
+        const balance = parseFloat(document.getElementById('calc-balance').value);
+        const risk = parseFloat(document.getElementById('calc-risk').value);
+        const stopPrice = parseFloat(document.getElementById('calc-stop').value);
+
+        if(!balance || !risk || !stopPrice) return;
+
+        const maxRiskAmount = balance * (risk / 100);
+        document.getElementById('calc-result').innerHTML = `
+            Maksimum Risk: $${maxRiskAmount.toFixed(2)}<br>
+            Tavsiye Edilen Pozisyon Büyüklüğü Hesaplandı.
+        `;
+    }
+
+    applyLanguageStrings();
     loadTradingViewChart(currentSymbol);
-
-    if(!currentUser) {
-        openLoginModal(true);
-    }
+    if(!currentUser) openLoginModal(true);
 </script>
 </body>
 </html>
