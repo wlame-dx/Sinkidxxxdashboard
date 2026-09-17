@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SINKIDXXX // PRO TERMINAL</title>
-    <!-- Lightweight Charts V4 -->
-    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #12141a; color: #a1a7b6; height: 100vh; overflow: hidden; font-size: 12px; }
@@ -14,7 +15,7 @@
         .logo { font-weight: 800; color: #fff; font-size: 15px; letter-spacing: 1px; }
         .nav-right { display: flex; gap: 10px; align-items: center; }
         
-        .grid-container { display: grid; grid-template-columns: 240px 1fr 320px; height: calc(100vh - 42px); }
+        .grid-container { display: grid; grid-template-columns: 260px 1fr 300px; height: calc(100vh - 42px); }
         
         /* Left Watchlist */
         .sidebar-left { background: #161821; border-right: 1px solid #242836; overflow-y: auto; }
@@ -22,16 +23,12 @@
         .watchlist-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #1c1f2b; cursor: pointer; transition: 0.1s; }
         .watchlist-item:hover, .watchlist-item.active { background: #1d202c; }
         .sym-name { font-weight: 700; color: #e1e4ea; font-size: 13px; }
-        .price-badge { padding: 3px 6px; border-radius: 4px; font-weight: 700; font-size: 11px; text-align: right; }
-        .green-bg { background: rgba(0, 230, 118, 0.15); color: #00e676; }
+        .btn-delete-sym { background: rgba(255, 82, 82, 0.2); color: #ff5252; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 10px; display: none; }
+        .btn-delete-sym:hover { background: #ff5252; color: #fff; }
 
         /* Main Chart Area */
-        .main-chart-area { display: flex; flex-direction: column; background: #12141a; position: relative; }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #161821; border-bottom: 1px solid #242836; }
-        .current-symbol { font-size: 18px; font-weight: 800; color: #fff; display: flex; align-items: baseline; gap: 8px; }
-        .current-price { font-size: 16px; color: #00e676; }
-        
-        #chart-canvas { flex: 1; width: 100%; height: 100%; }
+        .main-chart-area { display: flex; flex-direction: column; background: #12141a; position: relative; height: 100%; }
+        #tradingview_widget { width: 100%; height: 100%; }
 
         /* Right Panel */
         .sidebar-right { background: #161821; border-left: 1px solid #242836; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -57,48 +54,30 @@
             <option value="en">EN 🇬🇧</option>
         </select>
         <div id="auth-status-area">
-            <button onclick="openLoginModal()" style="width:auto; padding: 4px 10px;" id="btn-login-modal">Giriş Yap</button>
+            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;" id="btn-login-modal">Giriş Yap</button>
         </div>
     </div>
 </div>
 
 <div class="grid-container">
-    <!-- SOL İZLEME LİSTESİ -->
     <div class="sidebar-left">
         <div class="section-title">
             <span id="txt-watchlist-title">İzleme Listem</span>
-            <span style="color:#2962ff;">LIVE</span>
+            <span style="color:#2962ff;">LIVE CLOUD</span>
         </div>
         <div id="watchlist-container"></div>
     </div>
 
-    <!-- ORTA CANLI GRAFİK -->
     <div class="main-chart-area">
-        <div class="chart-header">
-            <div class="current-symbol">
-                <span id="active-sym">BTCUSDT</span>
-                <span class="current-price" id="active-price">Loading...</span>
-            </div>
-            <div style="color: #646b7c; font-weight: bold;">BINANCE REALTIME</div>
-        </div>
-        <div id="chart-canvas"></div>
+        <div id="tradingview_widget"></div>
     </div>
 
-    <!-- SAĞ ALARM & ADMIN PANELİ -->
     <div class="sidebar-right">
-        <!-- Admin Kontrol Alanı -->
         <div class="panel-box admin-box" id="admin-panel" style="display: none;">
             <h4 style="color: #2962ff;">⚡ Admin Kontrol Paneli</h4>
-            <p style="font-size:10px; color:#828a9e; margin-bottom:6px;" id="txt-admin-info">Kullanıcıların izleme listesine coin ekleyin:</p>
-            <input type="text" id="admin-new-symbol" placeholder="Örn: SOLUSDT veya XRPUSDT">
+            <p style="font-size:10px; color:#828a9e; margin-bottom:6px;" id="txt-admin-info">Tüm kullanıcılara canlı sembol ekleyin:</p>
+            <input type="text" id="admin-new-symbol" placeholder="Örn: BINANCE:BTCUSDT veya BIST:THYAO">
             <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Listeye Ekle</button>
-        </div>
-
-        <div class="panel-box">
-            <h4 id="txt-alert-box-title">🎯 Kırılım Seviyesi Seçici</h4>
-            <label style="font-size:11px;" id="lbl-target-price">Hedef Kırılım Fiyatı:</label>
-            <input type="number" id="input-alert-level" placeholder="Örn: 68000" onchange="drawPriceLine()">
-            <button class="btn-action" onclick="drawPriceLine()" style="margin-top:8px;" id="btn-draw-line">Çizgiyi Grafiğe Çiz</button>
         </div>
 
         <div class="panel-box">
@@ -112,27 +91,49 @@
 </div>
 
 <!-- GİRİŞ MODALI -->
-<div id="login-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:999; justify-content:center; align-items:center;">
-    <div class="panel-box" style="width: 320px; background: #161821;">
-        <h4 id="txt-login-header">Sisteme Giriş Yap</h4>
-        <div style="font-size:10px; color:#828a9e; margin-bottom:8px;">
-            Demo User: <strong>t.me/sinkidxxx</strong> / <strong>sinkidxxx</strong>
+<div id="login-modal" style="display:flex; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+    <div class="panel-box" style="width: 320px; background: #161821; border: 1px solid #303548; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+        <h4 id="txt-login-header" style="text-align:center; font-size:16px; margin-bottom:12px;">Sisteme Giriş Yap</h4>
+        <div style="font-size:11px; color:#828a9e; margin-bottom:12px; background:#111319; padding:8px; border-radius:4px; line-height:1.4;">
+            <div>Demo User: <strong style="color:#fff;">t.me/sinkidxxx</strong></div>
+            <div>Şifre: <strong style="color:#fff;">sinkidxxx</strong></div>
         </div>
         <input type="text" id="login-user" placeholder="Kullanıcı Adı">
         <input type="password" id="login-pass" placeholder="Şifre">
-        <button class="btn-action" onclick="handleLogin()" style="margin-top:10px;" id="btn-submit-login">Giriş Yap</button>
-        <button onclick="closeLoginModal()" style="background:transparent; border:none; color:#828a9e; margin-top:5px; cursor:pointer;" id="btn-close-modal">Kapat</button>
+        <button class="btn-action" onclick="handleLogin()" style="margin-top:12px; padding:10px;" id="btn-submit-login">Giriş Yap</button>
+        <button onclick="closeLoginModal()" id="btn-close-modal" style="display:none; background:transparent; border:none; color:#828a9e; margin-top:8px; cursor:pointer;">Kapat</button>
     </div>
 </div>
 
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    let chart, candleSeries, priceLine = null;
-    let currentSymbol = 'BTCUSDT';
-    let wsConnection = null;
+    // --- FIREBASE KURULUMU ---
+    // ⚠️ AŞAĞIDAKİ databaseURL ALANINA KENDİ FIREBASE URL'İNİZİ YAPIŞTIRIN
+    const firebaseConfig = {
+        databaseURL: "https://sinkidxxx-cbd86-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const watchlistRef = db.ref('global_watchlist');
+
+    let currentSymbol = 'BINANCE:BTCUSDT';
     let currentLang = 'tr';
     let currentUser = null; 
+    let tvWidget = null;
+    let watchListSymbols = [];
 
-    let watchListSymbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT'];
+    // Firebase'den Canlı Liste Takibi (Sitedeki Herkese Anında Yansır)
+    watchlistRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            watchListSymbols = Object.values(data);
+        } else {
+            // İlk açılış varsayılan liste
+            watchListSymbols = ['BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'BINANCE:SOLUSDT', 'BIST:THYAO'];
+            watchlistRef.set(watchListSymbols);
+        }
+        renderWatchlist();
+    });
 
     function detectLanguage() {
         const userLang = navigator.language || navigator.userLanguage; 
@@ -144,61 +145,38 @@
     function manualLanguageSwitch() {
         currentLang = document.getElementById('lang-select').value;
         applyLanguageStrings();
+        loadTradingViewChart(currentSymbol);
     }
 
     function applyLanguageStrings() {
         const t = {
-            tr: {
-                watchlist: "İzleme Listem",
-                login: "Giriş Yap",
-                logout: "Çıkış Yap",
-                adminTitle: "⚡ Admin Kontrol Paneli",
-                adminInfo: "Kullanıcıların izleme listesine coin ekleyin:",
-                addCoin: "Listeye Ekle",
-                alertTitle: "🎯 Kırılım Seviyesi Seçici",
-                targetPrice: "Hedef Kırılım Fiyatı:",
-                drawLine: "Çizgiyi Grafiğe Çiz",
-                riskTitle: "Risk Yönetimi",
-                loginHeader: "Sisteme Giriş Yap",
-                close: "Kapat"
-            },
-            en: {
-                watchlist: "Watchlist",
-                login: "Log In",
-                logout: "Log Out",
-                adminTitle: "⚡ Admin Control Panel",
-                adminInfo: "Add symbols to users' watchlist:",
-                addCoin: "Add to Watchlist",
-                alertTitle: "🎯 Breakout Level Selector",
-                targetPrice: "Target Breakout Price:",
-                drawLine: "Draw Line on Chart",
-                riskTitle: "Risk Management",
-                loginHeader: "System Login",
-                close: "Close"
-            }
+            tr: { watchlist: "İzleme Listem", login: "Giriş Yap", adminInfo: "Tüm kullanıcılara canlı sembol ekleyin:", addCoin: "Listeye Ekle", riskTitle: "Risk Yönetimi", loginHeader: "Sisteme Giriş Yap", close: "Kapat" },
+            en: { watchlist: "Watchlist", login: "Log In", adminInfo: "Add symbol to global watchlist:", addCoin: "Add Symbol", riskTitle: "Risk Management", loginHeader: "System Login", close: "Close" }
         }[currentLang];
 
         document.getElementById('txt-watchlist-title').innerText = t.watchlist;
         if(!currentUser) {
-            document.getElementById('auth-status-area').innerHTML = `<button onclick="openLoginModal()" style="width:auto; padding: 4px 10px;" id="btn-login-modal">${t.login}</button>`;
+            document.getElementById('auth-status-area').innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;" id="btn-login-modal">${t.login}</button>`;
         }
         document.getElementById('txt-admin-info').innerText = t.adminInfo;
         document.getElementById('btn-add-coin').innerText = t.addCoin;
-        document.getElementById('txt-alert-box-title').innerText = t.alertTitle;
-        document.getElementById('lbl-target-price').innerText = t.targetPrice;
-        document.getElementById('btn-draw-line').innerText = t.drawLine;
         document.getElementById('txt-risk-title').innerText = t.riskTitle;
         document.getElementById('txt-login-header').innerText = t.loginHeader;
         document.getElementById('btn-submit-login').innerText = t.login;
         document.getElementById('btn-close-modal').innerText = t.close;
     }
 
-    function openLoginModal() {
+    function openLoginModal(isMandatory = false) { 
         document.getElementById('login-modal').style.display = 'flex';
+        document.getElementById('btn-close-modal').style.display = isMandatory ? 'none' : 'block';
     }
 
-    function closeLoginModal() {
-        document.getElementById('login-modal').style.display = 'none';
+    function closeLoginModal() { 
+        if(!currentUser) {
+            alert(currentLang === 'tr' ? "Devam etmek için giriş yapmalısınız." : "You must login to continue.");
+            return;
+        }
+        document.getElementById('login-modal').style.display = 'none'; 
     }
 
     function handleLogin() {
@@ -209,12 +187,14 @@
             currentUser = { username: 'itsswlame', role: 'admin' };
             document.getElementById('admin-panel').style.display = 'block';
             updateAuthBar();
-            closeLoginModal();
+            document.getElementById('login-modal').style.display = 'none';
+            renderWatchlist();
         } else if(u === 't.me/sinkidxxx' && p === 'sinkidxxx') {
             currentUser = { username: 't.me/sinkidxxx', role: 'user' };
             document.getElementById('admin-panel').style.display = 'none';
             updateAuthBar();
-            closeLoginModal();
+            document.getElementById('login-modal').style.display = 'none';
+            renderWatchlist();
         } else {
             alert(currentLang === 'tr' ? "Hatalı kullanıcı adı veya şifre!" : "Invalid credentials!");
         }
@@ -224,6 +204,8 @@
         currentUser = null;
         document.getElementById('admin-panel').style.display = 'none';
         updateAuthBar();
+        renderWatchlist();
+        openLoginModal(true);
     }
 
     function updateAuthBar() {
@@ -235,17 +217,28 @@
                 <button class="btn-danger" onclick="handleLogout()" style="width:auto; padding: 4px 8px; margin-left:6px;">${currentLang === 'tr' ? 'Çıkış' : 'Logout'}</button>
             `;
         } else {
-            area.innerHTML = `<button onclick="openLoginModal()" style="width:auto; padding: 4px 10px;">${currentLang === 'tr' ? 'Giriş Yap' : 'Log In'}</button>`;
+            area.innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;">${currentLang === 'tr' ? 'Giriş Yap' : 'Log In'}</button>`;
         }
     }
 
+    // Admin Tarafından Buluta Symbol Ekleme
     function adminAddSymbol() {
-        const sym = document.getElementById('admin-new-symbol').value.toUpperCase().trim();
-        if(sym && !watchListSymbols.includes(sym)) {
-            watchListSymbols.push(sym);
-            renderWatchlist();
-            document.getElementById('admin-new-symbol').value = '';
+        let sym = document.getElementById('admin-new-symbol').value.toUpperCase().trim();
+        if(sym) {
+            if(!sym.includes(':')) sym = 'BINANCE:' + sym;
+            if(!watchListSymbols.includes(sym)) {
+                watchListSymbols.push(sym);
+                watchlistRef.set(watchListSymbols); // Firebase Veritabanını Günceller
+                document.getElementById('admin-new-symbol').value = '';
+            }
         }
+    }
+
+    // Admin Tarafından Buluttan Symbol Silme
+    function removeSymbol(event, sym) {
+        event.stopPropagation();
+        watchListSymbols = watchListSymbols.filter(s => s !== sym);
+        watchlistRef.set(watchListSymbols); // Firebase Veritabanını Günceller
     }
 
     function renderWatchlist() {
@@ -256,113 +249,49 @@
             const item = document.createElement('div');
             item.className = `watchlist-item ${s === currentSymbol ? 'active' : ''}`;
             item.onclick = () => switchSymbol(s);
+            
+            const isDeleteVisible = currentUser && currentUser.role === 'admin' ? 'inline-block' : 'none';
+            
             item.innerHTML = `
                 <div>
                     <div class="sym-name">${s}</div>
-                    <div style="font-size:10px; color:#5a6070;">Binance Spot</div>
                 </div>
-                <div class="price-badge green-bg">LIVE</div>
+                <button class="btn-delete-sym" style="display:${isDeleteVisible};" onclick="removeSymbol(event, '${s}')">Kaldır</button>
             `;
             container.appendChild(item);
         });
     }
 
-    function initChartEngine() {
-        const container = document.getElementById('chart-canvas');
-        chart = LightweightCharts.createChart(container, {
-            autoSize: true,
-            layout: { background: { type: 'solid', color: '#12141a' }, textColor: '#7e8392' },
-            grid: { vertLines: { color: '#1c1f2b' }, horzLines: { color: '#1c1f2b' } },
-            crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-            priceScale: { borderColor: '#242836' },
-            timeScale: { borderColor: '#242836', timeVisible: true },
+    function loadTradingViewChart(symbol) {
+        document.getElementById('tradingview_widget').innerHTML = '';
+        
+        tvWidget = new TradingView.widget({
+            "autosize": true,
+            "symbol": symbol,
+            "interval": "D",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": currentLang,
+            "toolbar_bg": "#12141a",
+            "enable_publishing": false,
+            "allow_symbol_change": true,
+            "container_id": "tradingview_widget"
         });
-
-        candleSeries = chart.addCandlestickSeries({
-            upColor: '#00e676', downColor: '#ff5252',
-            borderUpColor: '#00e676', borderDownColor: '#ff5252',
-            wickUpColor: '#00e676', wickDownColor: '#ff5252',
-        });
-
-        loadRealCandleData(currentSymbol);
-    }
-
-    async function loadRealCandleData(symbol) {
-        if(wsConnection) wsConnection.close();
-
-        document.getElementById('active-sym').innerText = symbol;
-        document.getElementById('active-price').innerText = 'Loading...';
-
-        try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1m&limit=100`);
-            const data = await res.json();
-            
-            const formattedCandles = data.map(d => ({
-                time: d[0] / 1000,
-                open: parseFloat(d[1]),
-                high: parseFloat(d[2]),
-                low: parseFloat(d[3]),
-                close: parseFloat(d[4])
-            }));
-
-            candleSeries.setData(formattedCandles);
-            
-            const lastPrice = formattedCandles[formattedCandles.length - 1].close;
-            document.getElementById('active-price').innerText = lastPrice + ' USD';
-
-            connectBinanceWebSocket(symbol);
-
-        } catch (e) {
-            console.error("Veri hatası:", e);
-        }
-    }
-
-    function connectBinanceWebSocket(symbol) {
-        const streamName = symbol.toLowerCase() + '@kline_1m';
-        wsConnection = new WebSocket(`wss://stream.binance.com:9443/ws/${streamName}`);
-
-        wsConnection.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            const kline = message.k;
-            
-            const updatedCandle = {
-                time: kline.t / 1000,
-                open: parseFloat(kline.o),
-                high: parseFloat(kline.h),
-                low: parseFloat(kline.l),
-                close: parseFloat(kline.c)
-            };
-
-            candleSeries.update(updatedCandle);
-            document.getElementById('active-price').innerText = updatedCandle.close + ' USD';
-        };
     }
 
     function switchSymbol(symbol) {
         currentSymbol = symbol;
         renderWatchlist();
-        loadRealCandleData(symbol);
-    }
-
-    function drawPriceLine() {
-        const val = parseFloat(document.getElementById('input-alert-level').value);
-        if(!val) return;
-
-        if (priceLine) candleSeries.removePriceLine(priceLine);
-
-        priceLine = candleSeries.createPriceLine({
-            price: val,
-            color: '#ff5252',
-            lineWidth: 2,
-            lineStyle: LightweightCharts.LineStyle.Dashed,
-            axisLabelVisible: true,
-            title: 'KIRILIM: ' + val,
-        });
+        loadTradingViewChart(symbol);
     }
 
     detectLanguage();
-    renderWatchlist();
-    initChartEngine();
+    loadTradingViewChart(currentSymbol);
+
+    if(!currentUser) {
+        openLoginModal(true);
+    }
 </script>
 </body>
 </html>
