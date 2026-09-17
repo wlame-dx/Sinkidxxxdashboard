@@ -44,8 +44,6 @@
         button.btn-action:hover { background: #1e51e6; }
         button.btn-danger { background: #ff5252; border: none; font-weight: 700; cursor: pointer; }
         .user-badge { background: #1a1d26; padding: 4px 8px; border-radius: 6px; color: #00e676; font-weight: bold; border: 1px solid #222634; }
-        
-        .alarm-list-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #222634; font-size: 11px; }
 
         /* MODAL */
         #login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07080a; z-index: 99999; justify-content: center; align-items: center; }
@@ -102,18 +100,17 @@
         <!-- Admin Panel -->
         <div class="panel-box admin-box" id="admin-panel" style="display: none;">
             <h4 style="color: #2962ff;">⚡ <span id="txt-admin-header">Admin Control Panel</span></h4>
-            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Add live symbol for all users (e.g., NASDAQ:NVDA):</p>
+            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Add symbol to global watchlist (e.g., NASDAQ:NVDA):</p>
             <input type="text" id="admin-new-symbol" placeholder="E.g., NASDAQ:NVDA, BINANCE:BTCUSDT">
             <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Add Symbol</button>
         </div>
 
-        <!-- Price Alert -->
+        <!-- Chart Alerts Guide Box -->
         <div class="panel-box">
-            <h4>⏰ <span id="txt-alarm-header">Price Alert (Crypto)</span></h4>
-            <input type="text" id="input-alarm-price" placeholder="Target Price (USD)" inputmode="decimal">
-            <button class="btn-action" onclick="addPriceAlarm()" style="margin-top:8px;" id="btn-set-alarm">Set Alert</button>
-            <div id="alarm-list-container" style="margin-top:10px;"></div>
-            <p style="font-size:9px; color:#5d6373; margin-top:8px;" id="txt-tv-note">* For NASDAQ/BIST stocks (like NVDA), use built-in TradingView chart alerts.</p>
+            <h4>🔔 <span id="txt-alert-guide-header">TradingView Alerts</span></h4>
+            <p style="font-size:11px; color:#a1a7b6; line-height: 1.4;" id="txt-alert-guide-desc">
+                You can set custom price alerts directly using the built-in alert tool (alarm clock icon) on the TradingView chart header.
+            </p>
         </div>
 
         <!-- Position & Risk Calculator -->
@@ -178,17 +175,12 @@
     let currentUser = null; 
     let tvWidget = null;
     let watchListSymbols = [];
-    let activeAlarms = [];
-    let wsConnection = null;
-    let lastPrice = null;
-    let audioCtx = null;
 
     const langStrings = {
         tr: {
             watchlist: "İzleme Listem", login: "Giriş Yap", logout: "Çıkış Yap",
             adminHeader: "Admin Kontrol Paneli", adminInfo: "Tüm kullanıcılara canlı sembol ekle (Örn: NASDAQ:NVDA):", addCoin: "Listeye Ekle",
-            alarmHeader: "Fiyat Alarmı (Kripto)", setAlarm: "Alarm Kur",
-            tvNote: "* NVDA gibi NASDAQ/BIST hisseleri için grafiğin üstündeki TradingView alarm özelliğini kullanın.",
+            alertGuideHeader: "TradingView Alarmları", alertGuideDesc: "Grafik üzerindeki yerleşik alarm aracını (çan simgesi) kullanarak dilediğiniz gibi fiyat alarları kurabilirsiniz.",
             riskHeader: "Pozisyon & Risk Hesaplayıcı", balance: "Bakiye (USD):", risk: "Risk Oranı (%):", stop: "Stop Loss Fiyatı:", calc: "Hesapla",
             modalTitle: "Panelinize dönün", modalDesc: "Telegram kullanıcı adınız ve parolanızla giriş yapın.",
             userPlace: "Telegram kullanıcı adınız", passPlace: "Parola", btnLogin: "Giriş yap",
@@ -198,8 +190,7 @@
         en: {
             watchlist: "Watchlist", login: "Log In", logout: "Log Out",
             adminHeader: "Admin Control Panel", adminInfo: "Add symbol to global watchlist (e.g., NASDAQ:NVDA):", addCoin: "Add Symbol",
-            alarmHeader: "Price Alert (Crypto)", setAlarm: "Set Alert",
-            tvNote: "* For NASDAQ/BIST stocks like NVDA, use the built-in TradingView chart alert tool.",
+            alertGuideHeader: "TradingView Alerts", alertGuideDesc: "You can set custom price alerts directly using the built-in alert tool (alarm clock icon) on the TradingView chart header.",
             riskHeader: "Position & Risk Calculator", balance: "Balance (USD):", risk: "Risk Ratio (%):", stop: "Stop Loss Price:", calc: "Calculate",
             modalTitle: "Return to your panel", modalDesc: "Log in with your Telegram username and password.",
             userPlace: "Telegram username", passPlace: "Password", btnLogin: "Log in",
@@ -238,9 +229,8 @@
         document.getElementById('txt-admin-header').innerText = t.adminHeader;
         document.getElementById('txt-admin-info').innerText = t.adminInfo;
         document.getElementById('btn-add-coin').innerText = t.addCoin;
-        document.getElementById('txt-alarm-header').innerText = t.alarmHeader;
-        document.getElementById('btn-set-alarm').innerText = t.setAlarm;
-        document.getElementById('txt-tv-note').innerText = t.tvNote;
+        document.getElementById('txt-alert-guide-header').innerText = t.alertGuideHeader;
+        document.getElementById('txt-alert-guide-desc').innerText = t.alertGuideDesc;
         document.getElementById('txt-risk-header').innerText = t.riskHeader;
         document.getElementById('lbl-balance').innerText = t.balance;
         document.getElementById('lbl-risk').innerText = t.risk;
@@ -356,7 +346,7 @@
             "locale": currentLang,
             "toolbar_bg": "#12141a",
             "enable_publishing": false,
-            "allow_symbol_change": true,
+            "allow_symbol_change": false, // Arama / Sembol değiştirme çubuğu kaldırıldı
             "container_id": "tradingview_widget",
             "studies": [
                 "STD;MA"
@@ -366,108 +356,8 @@
 
     function switchSymbol(symbol) {
         currentSymbol = symbol;
-        lastPrice = null;
         renderWatchlist();
         loadTradingViewChart(symbol);
-        connectBinanceTickerForAlarm(symbol);
-    }
-
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
-
-    function playBeepSound() {
-        try {
-            initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = 880;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.8);
-        } catch(e){}
-    }
-
-    function addPriceAlarm() {
-        initAudio();
-        const val = document.getElementById('input-alarm-price').value;
-        const price = parseInputNumber(val);
-
-        if(!currentSymbol.includes('BINANCE:')) {
-            alert(currentLang === 'tr' ? "Bu araç için lütfen TradingView grafik içi alarm özelliğini kullanın." : "Please use the built-in TradingView chart alarm for non-crypto assets.");
-            return;
-        }
-
-        if(price !== null && price > 0) {
-            const direction = (lastPrice && price > lastPrice) ? 'ABOVE' : 'BELOW';
-            activeAlarms.push({ symbol: currentSymbol, price: price, direction: direction });
-            renderAlarms();
-            document.getElementById('input-alarm-price').value = '';
-            connectBinanceTickerForAlarm(currentSymbol);
-        } else {
-            alert(currentLang === 'tr' ? "Geçerli bir fiyat girin!" : "Please enter a valid price!");
-        }
-    }
-
-    function renderAlarms() {
-        const container = document.getElementById('alarm-list-container');
-        container.innerHTML = '';
-        activeAlarms.forEach((a, i) => {
-            const tag = a.direction === 'ABOVE' ? '▲' : '▼';
-            container.innerHTML += `
-                <div class="alarm-list-item">
-                    <span>${a.symbol}: <strong>${a.price} USD</strong> (${tag})</span>
-                    <span style="color:#ff5252; cursor:pointer;" onclick="activeAlarms.splice(${i},1);renderAlarms();">✕</span>
-                </div>
-            `;
-        });
-    }
-
-    function connectBinanceTickerForAlarm(symbol) {
-        if(!symbol.includes('BINANCE:')) {
-            if(wsConnection) wsConnection.close();
-            return;
-        }
-        
-        const rawSym = symbol.replace('BINANCE:', '').toLowerCase();
-        if(wsConnection) wsConnection.close();
-
-        wsConnection = new WebSocket(`wss://stream.binance.com:9443/ws/${rawSym}@ticker`);
-        wsConnection.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            const currentPrice = parseFloat(data.c);
-
-            if(isNaN(currentPrice)) return;
-            if (lastPrice === null) lastPrice = currentPrice;
-
-            for (let i = activeAlarms.length - 1; i >= 0; i--) {
-                const alarm = activeAlarms[i];
-                if (alarm.symbol === symbol) {
-                    let isTriggered = false;
-                    if (alarm.direction === 'ABOVE' && currentPrice >= alarm.price) isTriggered = true;
-                    else if (alarm.direction === 'BELOW' && currentPrice <= alarm.price) isTriggered = true;
-
-                    if (isTriggered) {
-                        playBeepSound();
-                        const alertMsg = currentLang === 'tr' 
-                            ? `🚨 ALARM TETİKLENDİ!\n\n${symbol} Fiyatı: ${currentPrice} USD\nHedef seviyeyi kırdı / geçti!` 
-                            : `🚨 ALERT TRIGGERED!\n\n${symbol} Price: ${currentPrice} USD\nTarget level crossed / reached!`;
-                        
-                        setTimeout(() => alert(alertMsg), 100);
-                        activeAlarms.splice(i, 1);
-                        renderAlarms();
-                    }
-                }
-            }
-            lastPrice = currentPrice;
-        };
     }
 
     function calculatePositionSize() {
@@ -484,11 +374,8 @@
         `;
     }
 
-    document.addEventListener('click', () => initAudio(), { once: true });
-
     applyLanguageStrings();
     loadTradingViewChart(currentSymbol);
-    connectBinanceTickerForAlarm(currentSymbol);
     if(!currentUser) openLoginModal(true);
 </script>
 </body>
