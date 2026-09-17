@@ -118,17 +118,6 @@
             <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Add Symbol</button>
         </div>
 
-        <!-- Direct Alert Trigger Box -->
-        <div class="panel-box">
-            <h4>🔔 <span id="txt-alert-guide-header">TradingView Alerts</span></h4>
-            <p style="font-size:11px; color:#a1a7b6; line-height: 1.4; margin-bottom: 8px;" id="txt-alert-guide-desc">
-                Click the button below to trigger the official TradingView alert creation dialog for the active symbol.
-            </p>
-            <button class="btn-action" onclick="triggerTradingViewAlert()" id="btn-trigger-alert" style="background: #00e676; color: #000; font-weight: 800;">
-                🔔 <span id="txt-btn-alert">Create Alert</span>
-            </button>
-        </div>
-
         <!-- Position & Risk Calculator -->
         <div class="panel-box">
             <h4>📐 <span id="txt-risk-header">Position & Risk Calculator</span></h4>
@@ -151,8 +140,8 @@
 <!-- LOGIN MODAL -->
 <div id="login-modal">
     <div class="login-card">
-        <div class="login-logo-circle">M</div>
-        <div class="login-subtitle">THE ART OF MONEY MAKING</div>
+        <div class="login-logo-circle">s</div>
+        <div class="login-subtitle">sinkidxxx</div>
         <div class="login-title" id="txt-modal-title">Return to your panel</div>
         <div class="login-desc" id="txt-modal-desc">Log in with your Telegram username and password.</div>
         
@@ -196,8 +185,6 @@
         tr: {
             watchlist: "İzleme Listesi", login: "Giriş Yap", logout: "Çıkış",
             adminHeader: "Admin Panel", adminInfo: "Sembol ekle (Örn: NASDAQ:NVDA):", addCoin: "Ekle",
-            alertGuideHeader: "TradingView Alarmları", alertGuideDesc: "Aktif sembol için resmi TradingView alarm penceresini doğrudan açın.",
-            btnAlert: "Alarm Kur",
             riskHeader: "Risk Hesaplayıcı", balance: "Bakiye (USD):", risk: "Risk (%):", stop: "Stop Fiyatı:", calc: "Hesapla",
             modalTitle: "Giriş Yapın", modalDesc: "Telegram kullanıcı adı ve parolanızla giriş yapın.",
             userPlace: "Telegram kullanıcı adı", passPlace: "Parola", btnLogin: "Giriş yap",
@@ -206,8 +193,6 @@
         en: {
             watchlist: "Watchlist", login: "Log In", logout: "Log Out",
             adminHeader: "Admin Control", adminInfo: "Add symbol (e.g., NASDAQ:NVDA):", addCoin: "Add",
-            alertGuideHeader: "TradingView Alerts", alertGuideDesc: "Directly open the official TradingView alert creation modal for the active symbol.",
-            btnAlert: "Create Alert",
             riskHeader: "Risk Calculator", balance: "Balance (USD):", risk: "Risk Ratio (%):", stop: "Stop Loss Price:", calc: "Calculate",
             modalTitle: "Return to panel", modalDesc: "Log in with your Telegram username and password.",
             userPlace: "Telegram username", passPlace: "Password", btnLogin: "Log in",
@@ -245,9 +230,6 @@
         document.getElementById('txt-admin-header').innerText = t.adminHeader;
         document.getElementById('txt-admin-info').innerText = t.adminInfo;
         document.getElementById('btn-add-coin').innerText = t.addCoin;
-        document.getElementById('txt-alert-guide-header').innerText = t.alertGuideHeader;
-        document.getElementById('txt-alert-guide-desc').innerText = t.alertGuideDesc;
-        document.getElementById('txt-btn-alert').innerText = t.btnAlert;
         document.getElementById('txt-risk-header').innerText = t.riskHeader;
         document.getElementById('lbl-balance').innerText = t.balance;
         document.getElementById('lbl-risk').innerText = t.risk;
@@ -373,16 +355,6 @@
         currentSymbol = symbol;
         renderWatchlist();
         loadTradingViewChart(symbol);
-    }
-
-    // TradingView widget API üzerinden alarm diyalogunu tetikleyen fonksiyon
-    function triggerTradingViewAlert() {
-        if (tvWidget && typeof tvWidget.executeActionById === 'function') {
-            tvWidget.chart().executeActionById("insertAlarm");
-        } else {
-            // Eğer API doğrudan desteklemiyorsa alternatif olarak TradingView web sitesine yönlendir
-            window.open(`https://www.tradingview.com/chart/?symbol=${currentSymbol}`, '_blank');
-        }
     }
 
     function calculatePositionSize() {
