@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SINKIDXXX // PRO DASHBOARD</title>
+    <title>SINKIDXXX // PRO TERMINAL</title>
     <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -137,8 +137,8 @@
 <!-- LOGIN MODALI -->
 <div id="login-modal">
     <div class="login-card">
-        <div class="login-logo-circle">S</div>
-        <div class="login-subtitle">SINKIDXXX</div>
+        <div class="login-logo-circle">M</div>
+        <div class="login-subtitle">PARA KAZANMA SANATI</div>
         <div class="login-title" id="txt-modal-title">Panelinize dönün</div>
         <div class="login-desc" id="txt-modal-desc">Telegram kullanıcı adınız ve parolanızla giriş yapın.</div>
         
@@ -164,7 +164,7 @@
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    // --- ÖZEL FIREBASE VERİTABANI BAĞLANTISI ---
+    // --- FIREBASE VERİTABANI ---
     const firebaseConfig = {
         databaseURL: "https://sinkidxxx-cbd86-default-rtdb.firebaseio.com/"
     };
@@ -180,6 +180,7 @@
     let watchListSymbols = [];
     let activeAlarms = [];
     let wsConnection = null;
+    let lastPrice = null; // Fiyat yönünü belirlemek için hafızada tutulan son fiyat
 
     const langStrings = {
         tr: {
@@ -350,25 +351,30 @@
 
     function switchSymbol(symbol) {
         currentSymbol = symbol;
+        lastPrice = null;
         renderWatchlist();
         loadTradingViewChart(symbol);
         connectBinanceTickerForAlarm(symbol);
     }
 
     function playBeepSound() {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = 880;
-        osc.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.5);
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = 880;
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.8);
+        } catch(e){}
     }
 
     function addPriceAlarm() {
         const price = parseFloat(document.getElementById('input-alarm-price').value);
         if(price) {
-            activeAlarms.push({ symbol: currentSymbol, price: price });
+            // İlk kurulduğu andaki mevcut fiyata göre alarm yönü belirlenir (üstüne mi çıkacak, altına mı düşecek)
+            const direction = (lastPrice && price > lastPrice) ? 'ABOVE' : 'BELOW';
+            activeAlarms.push({ symbol: currentSymbol, price: price, direction: direction });
             renderAlarms();
             document.getElementById('input-alarm-price').value = '';
             connectBinanceTickerForAlarm(currentSymbol);
@@ -379,15 +385,17 @@
         const container = document.getElementById('alarm-list-container');
         container.innerHTML = '';
         activeAlarms.forEach((a, i) => {
+            const tag = a.direction === 'ABOVE' ? '▲' : '▼';
             container.innerHTML += `
                 <div class="alarm-list-item">
-                    <span>${a.symbol}: <strong>${a.price} USD</strong></span>
+                    <span>${a.symbol}: <strong>${a.price} USD</strong> (${tag})</span>
                     <span style="color:#ff5252; cursor:pointer;" onclick="activeAlarms.splice(${i},1);renderAlarms();">✕</span>
                 </div>
             `;
         });
     }
 
+    // --- YENİLENMİŞ CANLI FİYAT VE DİNAMİK ALARM KONTROLÜ ---
     function connectBinanceTickerForAlarm(symbol) {
         if(!symbol.includes('BINANCE:')) return;
         const cleanSym = symbol.replace('BINANCE:', '').toLowerCase();
@@ -399,13 +407,32 @@
             const currentPrice = parseFloat(data.c);
 
             activeAlarms.forEach((alarm, index) => {
-                if(alarm.symbol === symbol && Math.abs(currentPrice - alarm.price) / alarm.price < 0.001) {
-                    playBeepSound();
-                    alert(`🚨 ALARM TETİKLENDİ! ${symbol} Hedef Fiyata Ulaştı: ${currentPrice}`);
-                    activeAlarms.splice(index, 1);
-                    renderAlarms();
+                if(alarm.symbol === symbol) {
+                    let isTriggered = false;
+
+                    // 1. Fiyat alarm seviyesinin ÜSTÜNE ÇIKTIYSA
+                    if (alarm.direction === 'ABOVE' && currentPrice >= alarm.price) {
+                        isTriggered = true;
+                    } 
+                    // 2. Fiyat alarm seviyesinin ALTINA İNDİYSEN VEYA Doğrudan Fiyata Ulaştıysa
+                    else if (alarm.direction === 'BELOW' && currentPrice <= alarm.price) {
+                        isTriggered = true;
+                    }
+                    // 3. Genel sınır kontrolü (%0.1 hassasiyet)
+                    else if (Math.abs(currentPrice - alarm.price) / alarm.price <= 0.001) {
+                        isTriggered = true;
+                    }
+
+                    if (isTriggered) {
+                        playBeepSound();
+                        alert(`🚨 ALARM TETİKLENDİ!\n\n${symbol} Fiyatı: ${currentPrice} USD\nHedef seviyeyi kırdı / geçti!`);
+                        activeAlarms.splice(index, 1);
+                        renderAlarms();
+                    }
                 }
             });
+
+            lastPrice = currentPrice;
         };
     }
 
@@ -425,6 +452,7 @@
 
     applyLanguageStrings();
     loadTradingViewChart(currentSymbol);
+    connectBinanceTickerForAlarm(currentSymbol);
     if(!currentUser) openLoginModal(true);
 </script>
 </body>
