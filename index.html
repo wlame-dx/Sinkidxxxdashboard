@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,11 +76,11 @@
     </div>
     <div class="nav-right">
         <select id="lang-select" onchange="manualLanguageSwitch()" style="width: auto; padding: 4px 8px; margin: 0;">
+            <option value="en" selected>EN 🇬🇧</option>
             <option value="tr">TR 🇹🇷</option>
-            <option value="en">EN 🇬🇧</option>
         </select>
         <div id="auth-status-area">
-            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 12px; margin: 0;" id="btn-login-modal">Giriş Yap</button>
+            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 12px; margin: 0;" id="btn-login-modal">Log In</button>
         </div>
     </div>
 </div>
@@ -88,7 +88,7 @@
 <div class="grid-container">
     <div class="sidebar-left">
         <div class="section-title">
-            <span id="txt-watchlist-title">İzleme Listem</span>
+            <span id="txt-watchlist-title">Watchlist</span>
             <span style="color:#00e676;">LIVE DB</span>
         </div>
         <div id="watchlist-container"></div>
@@ -99,72 +99,72 @@
     </div>
 
     <div class="sidebar-right">
-        <!-- Admin Paneli -->
+        <!-- Admin Panel -->
         <div class="panel-box admin-box" id="admin-panel" style="display: none;">
-            <h4 style="color: #2962ff;">⚡ <span id="txt-admin-header">Admin Kontrol Paneli</span></h4>
-            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Tüm kullanıcılara canlı sembol ekleyin:</p>
-            <input type="text" id="admin-new-symbol" placeholder="Örn: BINANCE:BTCUSDT veya BIST:THYAO">
-            <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Listeye Ekle</button>
+            <h4 style="color: #2962ff;">⚡ <span id="txt-admin-header">Admin Control Panel</span></h4>
+            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Add live symbol for all users:</p>
+            <input type="text" id="admin-new-symbol" placeholder="E.g., BINANCE:BTCUSDT or BIST:THYAO">
+            <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Add Symbol</button>
         </div>
 
-        <!-- Canlı Fiyat Alarmı -->
+        <!-- Price Alert -->
         <div class="panel-box">
-            <h4>⏰ <span id="txt-alarm-header">Fiyat Alarmı</span></h4>
-            <input type="number" id="input-alarm-price" placeholder="Hedef Fiyat (USD)">
-            <button class="btn-action" onclick="addPriceAlarm()" style="margin-top:8px;" id="btn-set-alarm">Alarm Kur</button>
+            <h4>⏰ <span id="txt-alarm-header">Price Alert</span></h4>
+            <input type="number" id="input-alarm-price" placeholder="Target Price (USD)">
+            <button class="btn-action" onclick="addPriceAlarm()" style="margin-top:8px;" id="btn-set-alarm">Set Alert</button>
             <div id="alarm-list-container" style="margin-top:10px;"></div>
         </div>
 
-        <!-- Pozisyon & Risk Hesaplayıcı -->
+        <!-- Position & Risk Calculator -->
         <div class="panel-box">
-            <h4>📐 <span id="txt-risk-header">Pozisyon & Risk Hesaplayıcı</span></h4>
-            <label style="font-size:10px; color:#6b7280;" id="lbl-balance">Bakiye (USD):</label>
+            <h4>📐 <span id="txt-risk-header">Position & Risk Calculator</span></h4>
+            <label style="font-size:10px; color:#6b7280;" id="lbl-balance">Balance (USD):</label>
             <input type="number" id="calc-balance" value="1000">
             
-            <label style="font-size:10px; color:#6b7280; margin-top:6px; display:block;" id="lbl-risk">Risk Oranı (%):</label>
+            <label style="font-size:10px; color:#6b7280; margin-top:6px; display:block;" id="lbl-risk">Risk Percentage (%):</label>
             <input type="number" id="calc-risk" value="1">
 
-            <label style="font-size:10px; color:#6b7280; margin-top:6px; display:block;" id="lbl-stop">Stop Loss Fiyatı:</label>
-            <input type="number" id="calc-stop" placeholder="Stop Fiyatı">
+            <label style="font-size:10px; color:#6b7280; margin-top:6px; display:block;" id="lbl-stop">Stop Loss Price:</label>
+            <input type="number" id="calc-stop" placeholder="Stop Price">
 
-            <button class="btn-action" onclick="calculatePositionSize()" style="margin-top:8px;" id="btn-calc">Hesapla</button>
+            <button class="btn-action" onclick="calculatePositionSize()" style="margin-top:8px;" id="btn-calc">Calculate</button>
             
             <div id="calc-result" style="margin-top:10px; font-size:11px; color:#00e676; font-weight:bold;"></div>
         </div>
     </div>
 </div>
 
-<!-- LOGIN MODALI -->
+<!-- LOGIN MODAL -->
 <div id="login-modal">
     <div class="login-card">
         <div class="login-logo-circle">M</div>
-        <div class="login-subtitle">PARA KAZANMA SANATI</div>
-        <div class="login-title" id="txt-modal-title">Panelinize dönün</div>
-        <div class="login-desc" id="txt-modal-desc">Telegram kullanıcı adınız ve parolanızla giriş yapın.</div>
+        <div class="login-subtitle">THE ART OF MONEY MAKING</div>
+        <div class="login-title" id="txt-modal-title">Return to your panel</div>
+        <div class="login-desc" id="txt-modal-desc">Log in with your Telegram username and password.</div>
         
         <div class="input-group">
             <span class="input-icon">👤</span>
-            <input type="text" id="login-user" placeholder="Telegram kullanıcı adınız">
+            <input type="text" id="login-user" placeholder="Your Telegram username">
         </div>
         
         <div class="input-group">
             <span class="input-icon">🔒</span>
-            <input type="password" id="login-pass" placeholder="Parola">
+            <input type="password" id="login-pass" placeholder="Password">
         </div>
         
         <button class="btn-login-submit" onclick="handleLogin()">
-            <span id="txt-btn-login">Giriş yap</span> &rarr;
+            <span id="txt-btn-login">Log in</span> &rarr;
         </button>
         
         <div class="login-footer-link">
-            🔒 <span id="txt-not-member">Üye değil misiniz? Sorun değil,</span> <a href="https://t.me/sinkidxxx" target="_blank" id="txt-click-here">katılım talebi için buraya tıklayın.</a>
+            🔒 <span id="txt-not-member">Not a member? No problem,</span> <a href="https://t.me/sinkidxxx" target="_blank" id="txt-click-here">click here to request access.</a>
         </div>
     </div>
 </div>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    // --- FIREBASE VERİTABANI ---
+    // --- FIREBASE DATABASE ---
     const firebaseConfig = {
         databaseURL: "https://sinkidxxx-cbd86-default-rtdb.firebaseio.com/"
     };
@@ -174,13 +174,13 @@
     const watchlistRef = db.ref('global_watchlist');
 
     let currentSymbol = 'BINANCE:BTCUSDT';
-    let currentLang = 'tr';
+    let currentLang = 'en';
     let currentUser = null; 
     let tvWidget = null;
     let watchListSymbols = [];
     let activeAlarms = [];
     let wsConnection = null;
-    let lastPrice = null; // Fiyat yönünü belirlemek için hafızada tutulan son fiyat
+    let lastPrice = null;
 
     const langStrings = {
         tr: {
@@ -190,20 +190,22 @@
             riskHeader: "Pozisyon & Risk Hesaplayıcı", balance: "Bakiye (USD):", risk: "Risk Oranı (%):", stop: "Stop Loss Fiyatı:", calc: "Hesapla",
             modalTitle: "Panelinize dönün", modalDesc: "Telegram kullanıcı adınız ve parolanızla giriş yapın.",
             userPlace: "Telegram kullanıcı adınız", passPlace: "Parola", btnLogin: "Giriş yap",
-            notMember: "Üye değil misiniz? Sorun değil,", clickHere: "katılım talebi için buraya tıklayın."
+            notMember: "Üye değil misiniz? Sorun değil,", clickHere: "katılım talebi için buraya tıklayın.",
+            remove: "Remove", alertTriggered: "🚨 ALERT TRIGGERED!"
         },
         en: {
             watchlist: "Watchlist", login: "Log In", logout: "Log Out",
             adminHeader: "Admin Control Panel", adminInfo: "Add symbol to global watchlist:", addCoin: "Add Symbol",
-            alarmHeader: "Price Alarm", setAlarm: "Set Alarm",
+            alarmHeader: "Price Alert", setAlarm: "Set Alert",
             riskHeader: "Position & Risk Calculator", balance: "Balance (USD):", risk: "Risk Ratio (%):", stop: "Stop Loss Price:", calc: "Calculate",
             modalTitle: "Return to your panel", modalDesc: "Log in with your Telegram username and password.",
             userPlace: "Telegram username", passPlace: "Password", btnLogin: "Log in",
-            notMember: "Not a member? No problem,", clickHere: "click here to request access."
+            notMember: "Not a member? No problem,", clickHere: "click here to request access.",
+            remove: "Remove", alertTriggered: "🚨 ALERT TRIGGERED!"
         }
     };
 
-    // Firebase Canlı Veri Takibi
+    // Firebase Live Tracking
     watchlistRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -269,7 +271,7 @@
             document.getElementById('login-modal').style.display = 'none';
             renderWatchlist();
         } else {
-            alert(currentLang === 'tr' ? "Hatalı kullanıcı adı veya şifre!" : "Invalid credentials!");
+            alert(currentLang === 'tr' ? "Hatalı kullanıcı adı veya şifre!" : "Invalid username or password!");
         }
     }
 
@@ -316,6 +318,7 @@
     function renderWatchlist() {
         const container = document.getElementById('watchlist-container');
         container.innerHTML = '';
+        const t = langStrings[currentLang];
         
         watchListSymbols.forEach(s => {
             const item = document.createElement('div');
@@ -326,7 +329,7 @@
             
             item.innerHTML = `
                 <div><div class="sym-name">${s}</div></div>
-                <button class="btn-delete-sym" style="display:${isDeleteVisible};" onclick="removeSymbol(event, '${s}')">Kaldır</button>
+                <button class="btn-delete-sym" style="display:${isDeleteVisible};" onclick="removeSymbol(event, '${s}')">${t.remove}</button>
             `;
             container.appendChild(item);
         });
@@ -372,7 +375,6 @@
     function addPriceAlarm() {
         const price = parseFloat(document.getElementById('input-alarm-price').value);
         if(price) {
-            // İlk kurulduğu andaki mevcut fiyata göre alarm yönü belirlenir (üstüne mi çıkacak, altına mı düşecek)
             const direction = (lastPrice && price > lastPrice) ? 'ABOVE' : 'BELOW';
             activeAlarms.push({ symbol: currentSymbol, price: price, direction: direction });
             renderAlarms();
@@ -395,7 +397,6 @@
         });
     }
 
-    // --- YENİLENMİŞ CANLI FİYAT VE DİNAMİK ALARM KONTROLÜ ---
     function connectBinanceTickerForAlarm(symbol) {
         if(!symbol.includes('BINANCE:')) return;
         const cleanSym = symbol.replace('BINANCE:', '').toLowerCase();
@@ -410,22 +411,22 @@
                 if(alarm.symbol === symbol) {
                     let isTriggered = false;
 
-                    // 1. Fiyat alarm seviyesinin ÜSTÜNE ÇIKTIYSA
                     if (alarm.direction === 'ABOVE' && currentPrice >= alarm.price) {
                         isTriggered = true;
                     } 
-                    // 2. Fiyat alarm seviyesinin ALTINA İNDİYSEN VEYA Doğrudan Fiyata Ulaştıysa
                     else if (alarm.direction === 'BELOW' && currentPrice <= alarm.price) {
                         isTriggered = true;
                     }
-                    // 3. Genel sınır kontrolü (%0.1 hassasiyet)
                     else if (Math.abs(currentPrice - alarm.price) / alarm.price <= 0.001) {
                         isTriggered = true;
                     }
 
                     if (isTriggered) {
                         playBeepSound();
-                        alert(`🚨 ALARM TETİKLENDİ!\n\n${symbol} Fiyatı: ${currentPrice} USD\nHedef seviyeyi kırdı / geçti!`);
+                        const alertMsg = currentLang === 'tr' 
+                            ? `🚨 ALARM TETİKLENDİ!\n\n${symbol} Fiyatı: ${currentPrice} USD\nHedef seviyeyi kırdı / geçti!` 
+                            : `🚨 ALERT TRIGGERED!\n\n${symbol} Price: ${currentPrice} USD\nTarget level crossed / reached!`;
+                        alert(alertMsg);
                         activeAlarms.splice(index, 1);
                         renderAlarms();
                     }
@@ -445,8 +446,8 @@
 
         const maxRiskAmount = balance * (risk / 100);
         document.getElementById('calc-result').innerHTML = `
-            Maksimum Risk: $${maxRiskAmount.toFixed(2)}<br>
-            Tavsiye Edilen Pozisyon Büyüklüğü Hesaplandı.
+            Max Risk: $${maxRiskAmount.toFixed(2)}<br>
+            Recommended Position Size Calculated.
         `;
     }
 
