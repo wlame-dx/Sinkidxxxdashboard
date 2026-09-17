@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SINKIDXXX // PRO TERMINAL</title>
     <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -16,6 +16,7 @@
         .logo-dot { width: 8px; height: 8px; background: #00e676; border-radius: 50%; box-shadow: 0 0 10px #00e676; }
         .nav-right { display: flex; gap: 12px; align-items: center; }
         
+        /* Mobil Uyumlu Grid Yapısı */
         .grid-container { display: grid; grid-template-columns: 260px 1fr 320px; height: calc(100vh - 44px); }
         
         /* Left Sidebar */
@@ -46,23 +47,36 @@
         .user-badge { background: #1a1d26; padding: 4px 8px; border-radius: 6px; color: #00e676; font-weight: bold; border: 1px solid #222634; }
 
         /* MODAL */
-        #login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07080a; z-index: 99999; justify-content: center; align-items: center; }
-        .login-card { width: 400px; background: #111319; border: 1px solid #1e222d; border-radius: 20px; padding: 40px 32px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-        .login-logo-circle { width: 70px; height: 70px; border-radius: 50%; border: 1px dashed #3a3f50; display: flex; justify-content: center; align-items: center; margin: 0 auto 20px auto; color: #fff; font-weight: 800; font-size: 18px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); }
-        .login-subtitle { font-size: 10px; letter-spacing: 2px; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-        .login-title { font-size: 22px; color: #fff; font-weight: 700; margin-bottom: 6px; }
-        .login-desc { font-size: 12px; color: #6b7280; margin-bottom: 24px; }
+        #login-modal { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07080a; z-index: 99999; justify-content: center; align-items: center; padding: 16px; }
+        .login-card { width: 100%; max-width: 400px; background: #111319; border: 1px solid #1e222d; border-radius: 20px; padding: 30px 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .login-logo-circle { width: 60px; height: 60px; border-radius: 50%; border: 1px dashed #3a3f50; display: flex; justify-content: center; align-items: center; margin: 0 auto 16px auto; color: #fff; font-weight: 800; font-size: 16px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); }
+        .login-subtitle { font-size: 10px; letter-spacing: 2px; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+        .login-title { font-size: 20px; color: #fff; font-weight: 700; margin-bottom: 6px; }
+        .login-desc { font-size: 11px; color: #6b7280; margin-bottom: 20px; }
         
         .input-group { position: relative; margin-bottom: 12px; }
-        .input-group input { background: #171a23; border: 1px solid #252a37; border-radius: 10px; padding: 12px 14px 12px 40px; font-size: 12px; color: #fff; }
+        .input-group input { background: #171a23; border: 1px solid #252a37; border-radius: 10px; padding: 12px 14px 12px 40px; font-size: 12px; color: #fff; width: 100%; }
         .input-group input::placeholder { color: #4b5563; }
         .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #4b5563; font-size: 14px; }
         
-        .btn-login-submit { background: #ffffff; color: #000; font-weight: 700; border-radius: 10px; padding: 12px; margin-top: 10px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; }
+        .btn-login-submit { background: #ffffff; color: #000; font-weight: 700; border-radius: 10px; padding: 12px; margin-top: 10px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; width: 100%; }
         .btn-login-submit:hover { background: #e5e7eb; }
         
-        .login-footer-link { margin-top: 18px; font-size: 11px; color: #6b7280; }
+        .login-footer-link { margin-top: 16px; font-size: 11px; color: #6b7280; }
         .login-footer-link a { color: #9ca3af; text-decoration: underline; cursor: pointer; }
+
+        /* Responsive Media Queries (Mobil Ekranlar İçin) */
+        @media (max-width: 900px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 200px 1fr auto;
+                height: calc(100vh - 44px);
+                overflow-y: auto;
+            }
+            body { overflow: auto; }
+            .sidebar-left { max-height: 200px; }
+            .sidebar-right { max-height: none; }
+        }
     </style>
 </head>
 <body>
@@ -70,15 +84,15 @@
 <div class="top-nav">
     <div class="logo">
         <div class="logo-dot"></div>
-        SINKIDXXX // TERMINAL PRO
+        SINKIDXXX // PRO
     </div>
     <div class="nav-right">
-        <select id="lang-select" onchange="manualLanguageSwitch()" style="width: auto; padding: 4px 8px; margin: 0;">
+        <select id="lang-select" onchange="manualLanguageSwitch()" style="width: auto; padding: 4px 6px; margin: 0;">
             <option value="en" selected>EN 🇬🇧</option>
             <option value="tr">TR 🇹🇷</option>
         </select>
         <div id="auth-status-area">
-            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 12px; margin: 0;" id="btn-login-modal">Log In</button>
+            <button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px; margin: 0;" id="btn-login-modal">Log In</button>
         </div>
     </div>
 </div>
@@ -100,16 +114,16 @@
         <!-- Admin Panel -->
         <div class="panel-box admin-box" id="admin-panel" style="display: none;">
             <h4 style="color: #2962ff;">⚡ <span id="txt-admin-header">Admin Control Panel</span></h4>
-            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Add symbol to global watchlist (e.g., NASDAQ:NVDA):</p>
-            <input type="text" id="admin-new-symbol" placeholder="E.g., NASDAQ:NVDA, BINANCE:BTCUSDT">
+            <p style="font-size:10px; color:#6b7280; margin-bottom:6px;" id="txt-admin-info">Add symbol (e.g., NASDAQ:NVDA):</p>
+            <input type="text" id="admin-new-symbol" placeholder="NASDAQ:NVDA">
             <button class="btn-action" onclick="adminAddSymbol()" style="margin-top:6px;" id="btn-add-coin">Add Symbol</button>
         </div>
 
         <!-- Chart Alerts Guide Box -->
         <div class="panel-box">
-            <h4>🔔 <span id="txt-alert-guide-header">TradingView Alerts</span></h4>
+            <h4>🔔 <span id="txt-alert-guide-header">Mobile & Chart Alerts</span></h4>
             <p style="font-size:11px; color:#a1a7b6; line-height: 1.4;" id="txt-alert-guide-desc">
-                You can set custom price alerts directly using the built-in alert tool (alarm clock icon) on the TradingView chart header.
+                On mobile, long-press on the chart level to add an alert or use TradingView shortcuts.
             </p>
         </div>
 
@@ -135,14 +149,14 @@
 <!-- LOGIN MODAL -->
 <div id="login-modal">
     <div class="login-card">
-        <div class="login-logo-circle">M</div>
-        <div class="login-subtitle">THE ART OF MONEY MAKING</div>
+        <div class="login-logo-circle">S</div>
+        <div class="login-subtitle">sinkidxxx</div>
         <div class="login-title" id="txt-modal-title">Return to your panel</div>
         <div class="login-desc" id="txt-modal-desc">Log in with your Telegram username and password.</div>
         
         <div class="input-group">
             <span class="input-icon">👤</span>
-            <input type="text" id="login-user" placeholder="Your Telegram username">
+            <input type="text" id="login-user" placeholder="Telegram username">
         </div>
         
         <div class="input-group">
@@ -155,7 +169,7 @@
         </button>
         
         <div class="login-footer-link">
-            🔒 <span id="txt-not-member">Not a member? No problem,</span> <a href="https://t.me/sinkidxxx" target="_blank" id="txt-click-here">click here to request access.</a>
+            🔒 <span id="txt-not-member">Not a member?</span> <a href="https://t.me/sinkidxxx" target="_blank" id="txt-click-here">click here.</a>
         </div>
     </div>
 </div>
@@ -178,24 +192,22 @@
 
     const langStrings = {
         tr: {
-            watchlist: "İzleme Listem", login: "Giriş Yap", logout: "Çıkış Yap",
-            adminHeader: "Admin Kontrol Paneli", adminInfo: "Tüm kullanıcılara canlı sembol ekle (Örn: NASDAQ:NVDA):", addCoin: "Listeye Ekle",
-            alertGuideHeader: "TradingView Alarmları", alertGuideDesc: "Grafik üzerindeki yerleşik alarm aracını (çan simgesi) kullanarak dilediğiniz gibi fiyat alarları kurabilirsiniz.",
-            riskHeader: "Pozisyon & Risk Hesaplayıcı", balance: "Bakiye (USD):", risk: "Risk Oranı (%):", stop: "Stop Loss Fiyatı:", calc: "Hesapla",
-            modalTitle: "Panelinize dönün", modalDesc: "Telegram kullanıcı adınız ve parolanızla giriş yapın.",
-            userPlace: "Telegram kullanıcı adınız", passPlace: "Parola", btnLogin: "Giriş yap",
-            notMember: "Üye değil misiniz? Sorun değil,", clickHere: "katılım talebi için buraya tıklayın.",
-            remove: "Kaldır"
+            watchlist: "İzleme Listesi", login: "Giriş Yap", logout: "Çıkış",
+            adminHeader: "Admin Panel", adminInfo: "Sembol ekle (Örn: NASDAQ:NVDA):", addCoin: "Ekle",
+            alertGuideHeader: "Alarm Bilgilendirmesi", alertGuideDesc: "Mobilde grafik üzerinde fiyata basılı tutarak veya TradingView menüsünden kolayca alarm kurabilirsiniz.",
+            riskHeader: "Risk Hesaplayıcı", balance: "Bakiye (USD):", risk: "Risk (%):", stop: "Stop Fiyatı:", calc: "Hesapla",
+            modalTitle: "Giriş Yapın", modalDesc: "Telegram kullanıcı adı ve parolanızla giriş yapın.",
+            userPlace: "Telegram kullanıcı adı", passPlace: "Parola", btnLogin: "Giriş yap",
+            notMember: "Üye değil misiniz?", clickHere: "tıklayın.", remove: "Sil"
         },
         en: {
             watchlist: "Watchlist", login: "Log In", logout: "Log Out",
-            adminHeader: "Admin Control Panel", adminInfo: "Add symbol to global watchlist (e.g., NASDAQ:NVDA):", addCoin: "Add Symbol",
-            alertGuideHeader: "TradingView Alerts", alertGuideDesc: "You can set custom price alerts directly using the built-in alert tool (alarm clock icon) on the TradingView chart header.",
-            riskHeader: "Position & Risk Calculator", balance: "Balance (USD):", risk: "Risk Ratio (%):", stop: "Stop Loss Price:", calc: "Calculate",
-            modalTitle: "Return to your panel", modalDesc: "Log in with your Telegram username and password.",
+            adminHeader: "Admin Control", adminInfo: "Add symbol (e.g., NASDAQ:NVDA):", addCoin: "Add",
+            alertGuideHeader: "Chart Alerts", alertGuideDesc: "On mobile, long-press on the chart level to add an alert or use TradingView menu options.",
+            riskHeader: "Risk Calculator", balance: "Balance (USD):", risk: "Risk Ratio (%):", stop: "Stop Loss Price:", calc: "Calculate",
+            modalTitle: "Return to panel", modalDesc: "Log in with your Telegram username and password.",
             userPlace: "Telegram username", passPlace: "Password", btnLogin: "Log in",
-            notMember: "Not a member? No problem,", clickHere: "click here to request access.",
-            remove: "Remove"
+            notMember: "Not a member?", clickHere: "click here.", remove: "Remove"
         }
     };
 
@@ -290,7 +302,7 @@
             const roleTag = currentUser.role === 'admin' ? '<span style="color:#2962ff;">[ADMIN]</span>' : '';
             area.innerHTML = `
                 <span class="user-badge">👤 ${currentUser.username} ${roleTag}</span>
-                <button class="btn-danger" onclick="handleLogout()" style="width:auto; padding: 4px 8px; margin-left:6px;">${t.logout}</button>
+                <button class="btn-danger" onclick="handleLogout()" style="width:auto; padding: 4px 8px; margin-left:4px;">${t.logout}</button>
             `;
         } else {
             area.innerHTML = `<button onclick="openLoginModal(false)" style="width:auto; padding: 4px 10px;">${t.login}</button>`;
@@ -346,11 +358,9 @@
             "locale": currentLang,
             "toolbar_bg": "#12141a",
             "enable_publishing": false,
-            "allow_symbol_change": false, // Arama / Sembol değiştirme çubuğu kaldırıldı
+            "allow_symbol_change": false,
             "container_id": "tradingview_widget",
-            "studies": [
-                "STD;MA"
-            ]
+            "studies": ["STD;MA"]
         });
     }
 
