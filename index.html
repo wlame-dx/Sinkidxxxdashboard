@@ -2,116 +2,185 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Sinkidxxx Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINKIDXXX Terminal Pro</title>
+    <!-- TradingView Lightweight Charts (Kendi Grafik Engine'imiz) -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        body { margin: 0; background-color: #131722; color: #fff; font-family: Arial, sans-serif; }
-        .header { display: flex; justify-content: space-between; padding: 10px 20px; background: #1e222d; align-items: center; }
-        .main-container { display: flex; height: calc(100vh - 50px); }
-        #chart-zone { flex: 3; height: 100%; }
-        #panel-zone { flex: 1; background: #1e222d; padding: 15px; border-left: 1px solid #2a2e39; overflow-y: auto; }
-        input, select, button { width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #2a2e39; border: none; color: white; border-radius: 4px; }
-        button { background: #2962ff; cursor: pointer; font-weight: bold; }
-        .alert-item { background: #2a2e39; padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 4px solid #00e676; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0b0e14; color: #d1d4dc; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #151924; border-bottom: 1px solid #2a2e39; }
+        .logo { font-size: 18px; font-weight: bold; color: #2962ff; letter-spacing: 1px; }
+        
+        .main-layout { display: flex; height: calc(100vh - 50px); }
+        #chart-container { flex: 3; position: relative; border-right: 1px solid #2a2e39; }
+        
+        .sidebar { flex: 1; background: #151924; padding: 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        .card { background: #1e222d; border: 1px solid #2a2e39; border-radius: 6px; padding: 12px; }
+        .card h4 { margin-bottom: 10px; color: #fff; font-size: 14px; border-bottom: 1px solid #2a2e39; padding-bottom: 5px; }
+        
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; background: #2a2e39; border: 1px solid #363c4e; color: #fff; border-radius: 4px; font-size: 13px; }
+        button.action-btn { background: #2962ff; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button.action-btn:hover { background: #1e51e6; }
+        
+        .badge { display: inline-block; padding: 3px 6px; font-size: 10px; border-radius: 3px; font-weight: bold; }
+        .badge-breakout { background: rgba(0, 230, 118, 0.2); color: #00e676; border: 1px solid #00e676; }
+        .badge-breakdown { background: rgba(255, 82, 82, 0.2); color: #ff5252; border: 1px solid #ff5252; }
+        
+        .alert-item { background: #11141d; padding: 10px; border-radius: 4px; border-left: 3px solid #2962ff; margin-bottom: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h3 style="margin:0;">SINKIDXXX DASHBOARD</h3>
-    <select id="lang-select" onchange="changeLanguage()" style="width: 100px; margin:0;">
-        <option value="tr">TR 🇹🇷</option>
-        <option value="en">EN 🇬🇧</option>
-    </select>
-</div>
-
-<div class="main-container">
-    <!-- TradingView Chart -->
-    <div id="chart-zone"></div>
-
-    <!-- Alarm & Breakout Control Panel -->
-    <div id="panel-zone">
-        <h4 id="txt-title">🚨 Alarm / Breakout Kur</h4>
-        
-        <label id="txt-symbol-lbl">Sembol:</label>
-        <input type="text" id="alert-symbol" value="NASDAQ:TNON">
-
-        <label id="txt-price-lbl">Hedef Kırılım Fiyatı:</label>
-        <input type="number" id="alert-price" placeholder="Örn: 150.50">
-
-        <label id="txt-type-lbl">Kırılım Türü:</label>
-        <select id="alert-type">
-            <option value="crossing">Yukarı Kırılım (Breakout)</option>
-            <option value="support">Destek Kırılımı (Breakdown)</option>
+    <div class="logo">SINKIDXXX // TERMINAL PRO</div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <select id="lang-select" onchange="switchLanguage()" style="width: 80px; margin: 0;">
+            <option value="tr">TR 🇹🇷</option>
+            <option value="en">EN 🇬🇧</option>
         </select>
-
-        <button id="txt-btn" onclick="addCustomAlert()">Alarmı Ekle</button>
-
-        <hr style="border-color: #2a2e39;">
-        <h4 id="txt-list-title">Aktif Alarmlar</h4>
-        <div id="alerts-list"></div>
     </div>
 </div>
 
-<script src="https://s3.tradingview.com/tv.js"></script>
-<script>
-    let currentLang = "tr";
+<div class="main-layout">
+    <!-- Özel Canvas Grafiği -->
+    <div id="chart-container"></div>
 
-    // Chart Yükleme
-    function initChart(lang) {
-        new TradingView.widget({
-            "autosize": true,
-            "symbol": "NASDAQ:TNON",
-            "interval": "D",
-            "timezone": "Europe/Istanbul",
-            "theme": "dark",
-            "style": "1",
-            "locale": lang,
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "hide_side_toolbar": false, // Çizim araç çubuğunu açar
-            "container_id": "chart-zone"
+    <!-- Kendi Kontrol & Kırılım Panelimiz -->
+    <div class="sidebar">
+        <!-- Özel Kırılım Algoritması Ayarı -->
+        <div class="card">
+            <h4 id="txt-engine-title">⚡ Akıllı Kırılım Motoru</h4>
+            <label id="lbl-symbol" style="font-size:11px;">Sembol Seçin:</label>
+            <select id="symbol-select" onchange="loadEngineData()">
+                <option value="BTCUSDT">BTC/USDT (Binance)</option>
+                <option value="ETHUSDT">ETH/USDT (Binance)</option>
+            </select>
+
+            <label id="lbl-sensitivity" style="font-size:11px; margin-top:8px; display:block;">Kırılım Hassasiyeti:</label>
+            <select id="sensitivity">
+                <option value="vol">Hacimli Mum Kapanışı (Hacim Spike)</option>
+                <option value="ma">MA200 Direnç Kırılımı</option>
+                <option value="price">Saf Fiyat Seviyesi</option>
+            </select>
+        </div>
+
+        <!-- Alarm Ekleme Kartı -->
+        <div class="card">
+            <h4 id="txt-alert-title">🎯 Kendi Sisteminde Alarm Kur</h4>
+            <input type="number" id="target-price" placeholder="Hedef Fiyat (Örn: 65000)">
+            <select id="alert-direction">
+                <option value="UP">Yukarı Kırılım (Breakout)</option>
+                <option value="DOWN">Aşağı Kırılım (Breakdown)</option>
+            </select>
+            <button class="action-btn" onclick="setSystemAlert()" id="btn-add-alert" style="margin-top:10px;">Sistem Alarmı Oluştur</button>
+        </div>
+
+        <!-- Akış Paneli -->
+        <div class="card" style="flex:1;">
+            <h4 id="txt-feed-title">📡 Canlı Kırılım Akışı</h4>
+            <div id="alert-feed">
+                <!-- Canlı kırılımlar buraya düşecek -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chart, candleSeries;
+    let currentLang = 'tr';
+
+    // 1. Kendi Grafik Motorumuzu Başlatma (Canvas tabanlı)
+    function initChartEngine() {
+        const container = document.getElementById('chart-container');
+        chart = LightweightCharts.createChart(container, {
+            width: container.clientWidth,
+            height: container.clientHeight,
+            layout: { backgroundColor: '#0b0e14', textColor: '#d1d4dc' },
+            grid: { vertLines: { color: '#1e222d' }, horzLines: { color: '#1e222d' } },
+            crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+            priceScale: { borderColor: '#2a2e39' },
+            timeScale: { borderColor: '#2a2e39' },
+        });
+
+        candleSeries = chart.addCandlestickSeries({
+            upColor: '#00e676', downColor: '#ff5252',
+            borderUpColor: '#00e676', borderDownColor: '#ff5252',
+            wickUpColor: '#00e676', wickDownColor: '#ff5252',
+        });
+
+        // Örnek mum verisi beslemesi
+        candleSeries.setData([
+            { time: '2026-09-10', open: 59000, high: 60200, low: 58800, close: 60000 },
+            { time: '2026-09-11', open: 60000, high: 61000, low: 59500, close: 60800 },
+            { time: '2026-09-12', open: 60800, high: 61500, low: 60100, close: 60300 },
+            { time: '2026-09-13', open: 60300, high: 62800, low: 60200, close: 62500 },
+        ]);
+
+        window.addEventListener('resize', () => {
+            chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
         });
     }
 
-    // Dil Değiştirme
-    function changeLanguage() {
-        currentLang = document.getElementById('lang-select').value;
-        initChart(currentLang);
-
-        if (currentLang === "en") {
-            document.getElementById('txt-title').innerText = "🚨 Set Alert / Breakout";
-            document.getElementById('txt-symbol-lbl').innerText = "Symbol:";
-            document.getElementById('txt-price-lbl').innerText = "Target Price:";
-            document.getElementById('txt-type-lbl').innerText = "Breakout Type:";
-            document.getElementById('txt-btn').innerText = "Add Alert";
-            document.getElementById('txt-list-title').innerText = "Active Alerts";
-        } else {
-            document.getElementById('txt-title').innerText = "🚨 Alarm / Breakout Kur";
-            document.getElementById('txt-symbol-lbl').innerText = "Sembol:";
-            document.getElementById('txt-price-lbl').innerText = "Hedef Kırılım Fiyatı:";
-            document.getElementById('txt-type-lbl').innerText = "Kırılım Türü:";
-            document.getElementById('txt-btn').innerText = "Alarmı Ekle";
-            document.getElementById('txt-list-title').innerText = "Aktif Alarmlar";
-        }
-    }
-
-    // Arayüzde Alarm Listeleme
-    function addCustomAlert() {
-        const sym = document.getElementById('alert-symbol').value;
-        const price = document.getElementById('alert-price').value;
-        const type = document.getElementById('alert-type').value;
+    // 2. Kendi Sistemimize Özel Alarm Kurma
+    function setSystemAlert() {
+        const price = document.getElementById('target-price').value;
+        const dir = document.getElementById('alert-direction').value;
+        const sym = document.getElementById('symbol-select').value;
 
         if (!price) return;
 
-        const list = document.getElementById('alerts-list');
-        const item = document.createElement('div');
-        item.className = 'alert-item';
-        item.innerHTML = `<strong>${sym}</strong> - ${price} (${type}) <br><small>Takip Ediliyor...</small>`;
-        list.appendChild(item);
+        const feed = document.getElementById('alert-feed');
+        const badgeClass = dir === 'UP' ? 'badge-breakout' : 'badge-breakdown';
+        const badgeText = dir === 'UP' ? 'BREAKOUT' : 'BREAKDOWN';
+
+        const alertHTML = `
+            <div class="alert-item">
+                <span class="badge ${badgeClass}">${badgeText}</span> 
+                <strong>${sym}</strong> @ ${price}
+                <div style="color: #787b86; font-size: 10px; margin-top: 3px;">
+                    ${currentLang === 'tr' ? 'Kendi algoritman ile takip ediliyor...' : 'Tracked by custom engine...'}
+                </div>
+            </div>
+        `;
+        feed.innerHTML = alertHTML + feed.innerHTML;
     }
 
-    // Sayfa yüklenince başlat
-    initChart('tr');
+    // 3. İki Dilli Sistem (TR/EN)
+    function switchLanguage() {
+        currentLang = document.getElementById('lang-select').value;
+        
+        const dict = {
+            tr: {
+                engine: "⚡ Akıllı Kırılım Motoru",
+                lblSym: "Sembol Seçin:",
+                lblSens: "Kırılım Hassasiyeti:",
+                alertTitle: "🎯 Kendi Sisteminde Alarm Kur",
+                addBtn: "Sistem Alarmı Oluştur",
+                feedTitle: "📡 Canlı Kırılım Akışı"
+            },
+            en: {
+                engine: "⚡ Smart Breakout Engine",
+                lblSym: "Select Symbol:",
+                lblSens: "Breakout Sensitivity:",
+                alertTitle: "🎯 Set Custom Engine Alert",
+                addBtn: "Create System Alert",
+                feedTitle: "📡 Live Breakout Feed"
+            }
+        };
+
+        const t = dict[currentLang];
+        document.getElementById('txt-engine-title').innerText = t.engine;
+        document.getElementById('lbl-symbol').innerText = t.lblSym;
+        document.getElementById('lbl-sensitivity').innerText = t.lblSens;
+        document.getElementById('txt-alert-title').innerText = t.alertTitle;
+        document.getElementById('btn-add-alert').innerText = t.addBtn;
+        document.getElementById('txt-feed-title').innerText = t.feedTitle;
+    }
+
+    // Başlat
+    initChartEngine();
 </script>
 </body>
 </html>
